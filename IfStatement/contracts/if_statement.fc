@@ -1,0 +1,64 @@
+#include "imports/stdlib.fc";
+
+global int ctx_id;
+global int ctx_counter;
+
+() load_data() impure {
+    var ds = get_data().begin_parse();
+
+    ctx_id = ds~load_uint(32);
+    ctx_counter = ds~load_uint(32);
+
+    ds.end_parse();
+}
+
+() save_data() impure {
+    set_data(
+        begin_cell()
+            .store_uint(ctx_id, 32)
+            .store_uint(ctx_counter, 32)
+            .end_cell()
+    );
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+
+    load_data();
+
+    int op = in_msg_body~load_uint(32);
+
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-write-an-if-statement
+    ;; Let's say we want to check if any event is relevant. To do this, we use the flag variable.
+    ;; We can use the if statement to check if the op code is 1 or something else.
+    ;; If the op code is 1, we increase the counter by the value in the message body.
+    ;; If the op code is not 1, we throw an exception with the code 0xffff.
+    if (op == 1) {
+        int increase_by = in_msg_body~load_uint(32);
+        ctx_counter += increase_by;
+        save_data();
+        return ();
+    } else {
+        throw(0xffff);
+    
+    }
+
+}
+
+int get_counter() method_id {
+    load_data();
+    return ctx_counter;
+}
+
+int get_id() method_id {
+    load_data();
+    return ctx_id;
+}
