@@ -2,7 +2,9 @@
 
 An evergrowing collection of examples of how to use the smart-contract language of The Open Network: **func**.
 
-[Learn more about Func](https://docs.ton.org/develop/func/overview).
+Our mission is to adapt ALL code snippets from the [FunC Cookbook](https://docs.ton.org/develop/func/cookbook) into runnable [Blueprint](https://github.com/ton-org/blueprint) projects.
+
+[Track the completion ☝️](https://github.com/VopxTech/func-examples/issues/1)
 
 ## Usage
 
