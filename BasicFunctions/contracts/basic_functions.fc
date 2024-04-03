@@ -36,10 +36,18 @@ global int ctx_counter;
 
     int op = in_msg_body~load_uint(32);
 
-    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-write-a-repeat-loop
-    ;; As an example, we can take exponentiation
-    ;; The code loops for `increase_by` amount of times and multiplies `ctx_counter` by 2
+    ;; How to write an if statement
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-write-an-if-statement
     if (op == 1) {
+        int increase_by = in_msg_body~load_uint(32);
+        ctx_counter += increase_by;
+        save_data();
+        return ();
+    } 
+    
+    ;; How to write a repeat loop
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-write-a-repeat-loop
+    if (op == 2) {
         int increase_by = in_msg_body~load_uint(32);
         int multiplier = 2;
 
