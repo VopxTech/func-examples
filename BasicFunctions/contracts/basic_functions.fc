@@ -57,7 +57,22 @@ global int ctx_counter;
         
         save_data();
         return ();
-    } else {
+    }
+
+    ;; How to write a while loop
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-write-a-repeat-loop
+    if (op == 3) {
+        int limit = in_msg_body~load_uint(32);
+
+        while (ctx_counter < limit) {
+            ctx_counter += 1;
+        }
+
+        save_data();
+        return();
+    } 
+    
+    else {
         throw(0xffff);
     
     }

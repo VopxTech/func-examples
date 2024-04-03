@@ -114,4 +114,42 @@ describe("BasicFunctions", () => {
 
     expect(counterAfter).toBe(finalAmount);
   });
+
+  it("While Loop: it should increase counter", async () => {
+    const increaser = await blockchain.treasury("increaserby2");
+
+    const counterBefore = await basicFunctions.getCounter();
+
+    console.log("counter before increasing", counterBefore);
+
+    const limit = 5;
+
+    console.log("looping until", limit);
+
+    const increaseResult = await basicFunctions.sendWhileLoop(
+      increaser.getSender(),
+      {
+        limit,
+        value: toNano("0.05"),
+      },
+    );
+
+    expect(increaseResult.transactions).toHaveTransaction({
+      from: increaser.address,
+      to: basicFunctions.address,
+      success: true,
+    });
+
+    const counterAfter = await basicFunctions.getCounter();
+
+    console.log("counter after increasing", counterAfter);
+
+    let finalAmount = counterBefore;
+
+    while (counterBefore < limit) {
+      finalAmount += 1;
+    }
+
+    expect(counterAfter).toBe(finalAmount);
+  });
 });
