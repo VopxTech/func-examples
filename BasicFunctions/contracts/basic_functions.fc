@@ -71,7 +71,20 @@ global int ctx_counter;
         save_data();
         return();
     } 
-    
+
+    ;; How to write a do until loop
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-write-a-do-until-loop
+    if (op == 4) {
+        int limit = in_msg_body~load_uint(32);
+
+        do {
+            ctx_counter += 1;
+        } until (ctx_counter >= limit);
+
+        save_data();
+        return();
+    }
+
     else {
         throw(0xffff);
     

@@ -98,6 +98,20 @@ export class BasicFunctions implements Contract {
     });
   }
 
+  async sendUntilLoop(provider: ContractProvider, via: Sender, opts: {
+    limit: number;
+    value: bigint;
+  }) {
+    await provider.internal(via, {
+      value: opts.value,
+      sendMode: SendMode.PAY_GAS_SEPARATELY,
+      body: beginCell()
+        .storeUint(4, 32)
+        .storeUint(opts.limit, 32)
+        .endCell(),
+    });
+  }
+
   async getCounter(provider: ContractProvider) {
     const result = await provider.get("get_counter", []);
     return result.stack.readNumber();
