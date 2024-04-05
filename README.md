@@ -1,5 +1,7 @@
 # Func Examples
 
+![example workflow](https://github.com/VopxTech/func-examples/actions/workflows/node.js.yml/badge.svg)
+
 An evergrowing collection of examples of how to use the smart-contract language of The Open Network: **func**.
 
 Our mission is to adapt ALL code snippets from the [FunC Cookbook](https://docs.ton.org/develop/func/cookbook) into runnable [Blueprint](https://github.com/ton-org/blueprint) projects.
