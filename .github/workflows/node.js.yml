@@ -1,0 +1,29 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory:
+          - BasicFunctions
+          - BlankProject
+          - SimpleCounter
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies, Build, and Test
+        run: |
+          cd ${{ matrix.directory }}
+          npm ci
+          npm run build
+          npm run test
