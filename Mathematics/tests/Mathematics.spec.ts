@@ -42,7 +42,7 @@ describe("Mathematics", () => {
     // blockchain and mathematics are ready to use
   });
 
-  it("should increase counter", async () => {
+  it("Nth Power: should increase counter", async () => {
     const increaser = await blockchain.treasury("increaserRandom");
 
     const counterBefore = await mathematics.getCounter();
@@ -72,5 +72,32 @@ describe("Mathematics", () => {
     console.log("counter after increasing", counterAfter);
 
     expect(counterAfter).toBe(counterBefore + increaseBy ** 3);
+  });
+
+  it("Random: should increase counter", async () => {
+    const increaser = await blockchain.treasury("increaserRandom");
+
+    const counterBefore = await mathematics.getCounter();
+
+    console.log("counter before increasing", counterBefore);
+
+    const increaseResult = await mathematics.sendRandom(
+      increaser.getSender(),
+      {
+        value: toNano("0.05"),
+      },
+    );
+
+    expect(increaseResult.transactions).toHaveTransaction({
+      from: increaser.address,
+      to: mathematics.address,
+      success: true,
+    });
+
+    const counterAfter = await mathematics.getCounter();
+
+    console.log("counter after increasing", counterAfter);
+
+    expect(counterAfter).toBeGreaterThan(counterBefore);
   });
 });

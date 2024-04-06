@@ -1,81 +1,87 @@
-import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { Cell, toNano } from '@ton/core';
-import { SimpleCounter } from '../wrappers/SimpleCounter';
-import '@ton/test-utils';
-import { compile } from '@ton/blueprint';
+import { Blockchain, SandboxContract, TreasuryContract } from "@ton/sandbox";
+import { Cell, toNano } from "@ton/core";
+import { SimpleCounter } from "../wrappers/SimpleCounter";
+import "@ton/test-utils";
+import { compile } from "@ton/blueprint";
 
-describe('SimpleCounter', () => {
-    let code: Cell;
+describe("SimpleCounter", () => {
+  let code: Cell;
 
-    beforeAll(async () => {
-        code = await compile('SimpleCounter');
+  beforeAll(async () => {
+    code = await compile("SimpleCounter");
+  });
+
+  let blockchain: Blockchain;
+  let deployer: SandboxContract<TreasuryContract>;
+  let simpleCounter: SandboxContract<SimpleCounter>;
+
+  beforeEach(async () => {
+    blockchain = await Blockchain.create();
+
+    simpleCounter = blockchain.openContract(
+      SimpleCounter.createFromConfig(
+        {
+          id: 0,
+          counter: 0,
+        },
+        code,
+      ),
+    );
+
+    deployer = await blockchain.treasury("deployer");
+
+    const deployResult = await simpleCounter.sendDeploy(
+      deployer.getSender(),
+      toNano("0.05"),
+    );
+
+    expect(deployResult.transactions).toHaveTransaction({
+      from: deployer.address,
+      to: simpleCounter.address,
+      deploy: true,
+      success: true,
     });
+  });
 
-    let blockchain: Blockchain;
-    let deployer: SandboxContract<TreasuryContract>;
-    let simpleCounter: SandboxContract<SimpleCounter>;
+  it("should deploy", async () => {
+    // the check is done inside beforeEach
+    // blockchain and simpleCounter are ready to use
+  });
 
-    beforeEach(async () => {
-        blockchain = await Blockchain.create();
+  it("should increase counter", async () => {
+    const increaseTimes = 3;
+    for (let i = 0; i < increaseTimes; i++) {
+      console.log(`increase ${i + 1}/${increaseTimes}`);
 
-        simpleCounter = blockchain.openContract(
-            SimpleCounter.createFromConfig(
-                {
-                    id: 0,
-                    counter: 0,
-                },
-                code
-            )
-        );
+      const increaser = await blockchain.treasury("increaser" + i);
 
-        deployer = await blockchain.treasury('deployer');
+      const counterBefore = await simpleCounter.getCounter();
 
-        const deployResult = await simpleCounter.sendDeploy(deployer.getSender(), toNano('0.05'));
+      console.log("counter before increasing", counterBefore);
 
-        expect(deployResult.transactions).toHaveTransaction({
-            from: deployer.address,
-            to: simpleCounter.address,
-            deploy: true,
-            success: true,
-        });
-    });
+      const increaseBy = Math.floor(Math.random() * 100);
 
-    it('should deploy', async () => {
-        // the check is done inside beforeEach
-        // blockchain and simpleCounter are ready to use
-    });
+      console.log("increasing by", increaseBy);
 
-    it('should increase counter', async () => {
-        const increaseTimes = 3;
-        for (let i = 0; i < increaseTimes; i++) {
-            console.log(`increase ${i + 1}/${increaseTimes}`);
+      const increaseResult = await simpleCounter.sendIncrease(
+        increaser.getSender(),
+        {
+          increaseBy,
+          value: toNano("0.05"),
+        },
+      );
 
-            const increaser = await blockchain.treasury('increaser' + i);
+      expect(increaseResult.transactions).toHaveTransaction({
+        from: increaser.address,
+        to: simpleCounter.address,
+        success: true,
+      });
 
-            const counterBefore = await simpleCounter.getCounter();
+      const counterAfter = await simpleCounter.getCounter();
 
-            console.log('counter before increasing', counterBefore);
+      console.log("counter after increasing", counterAfter);
 
-            const increaseBy = Math.floor(Math.random() * 100);
-
-            console.log('increasing by', increaseBy);
-
-            const increaseResult = await simpleCounter.sendIncrease(increaser.getSender(), {
-                increaseBy,
-                value: toNano('0.05'),
-            });
-
-            expect(increaseResult.transactions).toHaveTransaction({
-                from: increaser.address,
-                to: simpleCounter.address,
-                success: true,
-            });
-
-            const counterAfter = await simpleCounter.getCounter();
-
-            console.log('counter after increasing', counterAfter);
-
-            expect(counterAfter).toBe(counterBefore + increaseBy);
-        }
-    });
+      expect(counterAfter).toBe(counterBefore + increaseBy);
+    }
+  });
 });

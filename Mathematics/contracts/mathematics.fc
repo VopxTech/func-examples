@@ -58,6 +58,19 @@ global int ctx_counter;
         return ();
     }
 
+    ;; How to generate random number
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-generate-random-number
+    ;; Random number generation: https://docs.ton.org/develop/smart-contracts/guidelines/random-number-generation
+    if (op == 2) {
+        randomize_lt(); ;; do this once
+        int a = rand(10);
+
+        ctx_counter += a;
+
+        save_data();
+        return ();
+    }
+
     throw(777);
 }
 
