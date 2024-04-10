@@ -100,4 +100,31 @@ describe("Mathematics", () => {
 
     expect(counterAfter).toBeGreaterThan(counterBefore);
   });
+
+  it("Current time: set counter to current time", async () => {
+    const increaser = await blockchain.treasury("increaserTime");
+
+    const counterBefore = await mathematics.getCounter();
+
+    console.log("counter before increasing", counterBefore);
+
+    const increaseResult = await mathematics.sendCurrentTime(
+      increaser.getSender(),
+      {
+        value: toNano("0.05"),
+      },
+    );
+
+    expect(increaseResult.transactions).toHaveTransaction({
+      from: increaser.address,
+      to: mathematics.address,
+      success: true,
+    });
+
+    const counterAfter = Math.floor(Date.now() / 1000);
+
+    console.log("counter after increasing", counterAfter);
+
+    expect(counterAfter).toBeGreaterThan(counterBefore);
+  });
 });

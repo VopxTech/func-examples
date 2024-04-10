@@ -71,6 +71,16 @@ global int ctx_counter;
         return ();
     }
 
+    ;; How to get current time
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-get-current-time
+    if (op == 3) {
+        int current_time = now();
+        ctx_counter += current_time;
+
+        save_data();
+        return ();
+    }
+
     throw(777);
 }
 
