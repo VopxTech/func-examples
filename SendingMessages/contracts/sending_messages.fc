@@ -1,0 +1,96 @@
+#include "imports/stdlib.fc";
+
+() recv_internal(int msg_value, cell in_msg, slice in_msg_body) impure {
+    slice cs = in_msg.begin_parse();
+    int flags = cs~load_uint(4); ;; first 4 bytes are flags
+    slice sender_address = cs~load_msg_addr(); ;; get the address
+
+    int op = in_msg_body~load_uint(32); ;; OP Code
+
+    if (op == 0) {
+        return();
+    }
+
+    if (op == 1) {
+        ;; How to build an internal message cell
+        ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-build-an-internal-message-cell
+
+        slice addr = "EQArzP5prfRJtDM5WrMNWyr9yUTAi0c9o6PfR4hkWy9UQXHx"a;
+        int amount = 1000000000;
+
+        cell msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(addr)
+            .store_coins(amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; default message headers (see sending messages page)
+            .store_uint(0, 32)
+            .store_slice("Hello from FunC!") ;; comment
+        .end_cell();
+
+        ;; How to send a simple message
+        ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-send-a-simple-message
+        send_raw_message(msg, 3); ;; mode 3 - pay fees separately and ignore errors 
+    }
+
+    ;; How to send a message with an incoming account
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-send-a-message-with-an-incoming-account
+    if (op == 2){
+        slice body = in_msg_body;
+
+        cell msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(sender_address)
+            .store_coins(100) ;; just for example
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; default message headers (see sending messages page)
+            .store_slice(body)
+        .end_cell();
+        send_raw_message(msg, 3);
+    }
+
+    ;; How to send a message with the entire balance
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-send-a-message-with-the-entire-balance
+    if (op == 3) {
+        cell msg = begin_cell()
+            .store_uint(0x18, 6) ;; flags
+            .store_slice(sender_address) ;; destination address (back to sender)
+            .store_coins(0) ;; we don't care about this value right now
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) ;; default message headers (see sending messages page)
+            .store_uint(0, 32) ;; zero opcode - means simple transfer message with comment
+            .store_slice("Hello from FunC!") ;; comment
+        .end_cell();
+        send_raw_message(msg, 128); ;; mode = 128 is used for messages that are to carry all the remaining balance of the current smart contract
+    }
+
+    ;; How to send a message with a long text comment
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-send-a-message-with-a-long-text-comment
+    if (op == 4) {
+        {-
+            If we want to send a message with really long comment, we should split the comment to several slices.
+            Each slice should have <1023 bits of data (127 chars).
+            Each slice should have a reference to the next one, forming a snake-like structure.
+        -}
+
+        cell body = begin_cell()
+        .store_uint(0, 32) ;; zero opcode - simple message with comment
+        .store_slice("long long long message...")
+        .store_ref(begin_cell()
+            .store_slice(" you can store string of almost any length here.")
+                .store_ref(begin_cell()
+                    .store_slice(" just don't forget about the 127 chars limit for each slice")
+                .end_cell())
+            .end_cell())
+        .end_cell();
+
+        cell msg = begin_cell()
+        .store_uint(0x18, 6) ;; flags
+            .store_slice(sender_address) ;; destination address (back to sender)
+            .store_coins(100) ;; amount of nanoTons to send
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1) ;; default message headers (see sending messages page)
+            .store_uint(1, 1) ;; we want to store body as a ref
+            .store_ref(body)
+        .end_cell();
+        send_raw_message(msg, 3); ;; mode 3 - pay fees separately, ignore errors
+    }
+    
+    throw(111);
+}

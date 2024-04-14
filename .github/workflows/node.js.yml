@@ -14,6 +14,7 @@ jobs:
           - BlankProject
           - SimpleCounter
           - Mathematics
+          - SendingMessages
 
     steps:
       - uses: actions/checkout@v3
