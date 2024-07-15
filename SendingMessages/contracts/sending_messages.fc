@@ -91,6 +91,49 @@
         .end_cell();
         send_raw_message(msg, 3); ;; mode 3 - pay fees separately, ignore errors
     }
+
+    ;; How to contain a body as slice to an internal message cell
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-contain-a-body-as-slice-to-an-internal-message-cell
+    if (op == 5) {
+        slice addr = sender_address;
+        int amount = 1000000000;
+        int op = 0;
+        slice message_body = "❤"; 
+
+        cell msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(addr)
+            .store_coins(amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+            .store_uint(op, 32)
+            .store_slice(message_body)
+        .end_cell();
+
+        send_raw_message(msg, 3);
+    }
+
+    ;; How to contain a body as ref to an internal message cell
+    ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-contain-a-body-as-ref-to-an-internal-message-cell
+    if (op == 6) {
+        slice addr = sender_address;
+        int amount = 1000000000;
+        int op = 0;
+        cell message_body = begin_cell()
+            .store_uint(op, 32)
+            .store_slice("❤")
+        .end_cell();
+    
+        cell msg = begin_cell()
+            .store_uint(0x18, 6)
+            .store_slice(addr)
+            .store_coins(amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1)
+            .store_uint(1, 1)
+            .store_ref(message_body)
+        .end_cell();
+
+        send_raw_message(msg, 3);
+    }
     
     throw(111);
 }
