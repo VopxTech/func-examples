@@ -30,6 +30,7 @@
         ;; How to send a simple message
         ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#how-to-send-a-simple-message
         send_raw_message(msg, 3); ;; mode 3 - pay fees separately and ignore errors 
+        return();
     }
 
     ;; How to send a message with an incoming account
@@ -45,6 +46,7 @@
             .store_slice(body)
         .end_cell();
         send_raw_message(msg, 3);
+        return();
     }
 
     ;; How to send a message with the entire balance
@@ -59,6 +61,7 @@
             .store_slice("Hello from FunC!") ;; comment
         .end_cell();
         send_raw_message(msg, 128); ;; mode = 128 is used for messages that are to carry all the remaining balance of the current smart contract
+        return();
     }
 
     ;; How to send a message with a long text comment
@@ -90,6 +93,7 @@
             .store_ref(body)
         .end_cell();
         send_raw_message(msg, 3); ;; mode 3 - pay fees separately, ignore errors
+        return();
     }
 
     ;; How to contain a body as slice to an internal message cell
@@ -110,6 +114,7 @@
         .end_cell();
 
         send_raw_message(msg, 3);
+        return();
     }
 
     ;; How to contain a body as ref to an internal message cell
@@ -133,6 +138,7 @@
         .end_cell();
 
         send_raw_message(msg, 3);
+        return();
     }
     
     throw(111);

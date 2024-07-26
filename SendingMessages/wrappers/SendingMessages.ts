@@ -2,7 +2,7 @@ import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, 
 
 export type SendingMessagesConfig = {};
 
-export function sendingMessagesConfigToCell(config: SendingMessagesConfig): Cell {
+export function sendingMessagesConfigToCell(_config: SendingMessagesConfig): Cell {
     return beginCell().endCell();
 }
 
@@ -59,6 +59,22 @@ export class SendingMessages implements Contract {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
             body: beginCell().storeUint(4, 32).endCell(),
+        });
+    }
+
+    async sendBodyAsSlice(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(5, 32).endCell(),
+        });
+    }
+
+    async sendBodyAsRef(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            body: beginCell().storeUint(6, 32).endCell(),
         });
     }
 }
