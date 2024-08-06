@@ -14,7 +14,10 @@ export const Opcodes = {
 };
 
 export class SimpleCounter implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(
+        readonly address: Address,
+        readonly init?: { code: Cell; data: Cell },
+    ) {}
 
     static createFromAddress(address: Address) {
         return new SimpleCounter(address);
@@ -41,7 +44,7 @@ export class SimpleCounter implements Contract {
             increaseBy: number;
             value: bigint;
             queryID?: number;
-        }
+        },
     ) {
         await provider.internal(via, {
             value: opts.value,

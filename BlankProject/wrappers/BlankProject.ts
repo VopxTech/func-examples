@@ -7,7 +7,10 @@ export function blankProjectConfigToCell(config: BlankProjectConfig): Cell {
 }
 
 export class BlankProject implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(
+        readonly address: Address,
+        readonly init?: { code: Cell; data: Cell },
+    ) {}
 
     static createFromAddress(address: Address) {
         return new BlankProject(address);
