@@ -77,15 +77,15 @@ export class Mathematics implements Contract {
         provider: ContractProvider,
         via: Sender,
         opts: {
-            xp: bigint;
-            zp: bigint;
+            xp: number;
+            zp: number;
             value: bigint;
         },
     ) {
         await provider.internal(via, {
             value: opts.value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().storeUint(4, 32).storeUint(opts.xp, 256).storeUint(opts.zp, 256).endCell(),
+            body: beginCell().storeUint(4, 32).storeUint(1, 32).storeUint(opts.xp, 32).storeUint(opts.zp, 32).endCell(),
         });
     }
 

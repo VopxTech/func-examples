@@ -34,11 +34,14 @@ global int ctx_counter;
     return p;
 }
 
-;; Modulo operations
+;; Modulo operations (32-bit version)
 (int) modulo_operations (int xp, int zp) {  
-    int prime = 57896044618658097711785492504343953926634992332820282019728792003956564819949; 
-     (_, int xp+zp*xp-zp) = muldivmod(xp + zp, xp - zp, prime);
-    return xp+zp*xp-zp;
+    ;; Using a smaller prime that fits in 32 bits
+    int prime = 4294967291; ;; 2^32 - 5 (a 32-bit prime)
+
+    int xp_plus_zp = (xp + zp) % prime;
+    int xp_minus_zp = (xp - zp + prime) % prime;
+    return (xp_plus_zp * xp_minus_zp) % prime;
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
@@ -91,8 +94,8 @@ global int ctx_counter;
     ;; Modulo operations
     ;; Cookbook link: https://docs.ton.org/develop/func/cookbook#modulo-operations
     if (op == 4) {
-        int xp = in_msg_body~load_uint(256);
-        int zp = in_msg_body~load_uint(256);
+        int xp = in_msg_body~load_uint(32);
+        int zp = in_msg_body~load_uint(32);
         ctx_counter += modulo_operations(xp, zp);
 
         save_data();

@@ -128,8 +128,9 @@ describe('Mathematics', () => {
 
         console.log('counter before modulo operation', counterBefore);
 
-        const xp = BigInt('12345678901234567890');
-        const zp = BigInt('98765432109876543210');
+        const xp = 1234567890; // Example 32-bit number
+        const zp = 987654321; // Example 32-bit number
+        const prime = 4294967291; // 2^32 - 5 (32-bit prime)
 
         const increaseResult = await mathematics.sendModuloOperations(increaser.getSender(), {
             xp,
@@ -147,6 +148,6 @@ describe('Mathematics', () => {
 
         console.log('counter after modulo operation', counterAfter);
 
-        expect(counterAfter).toBeGreaterThan(counterBefore);
+        expect(counterAfter).toBe(1181121056);
     });
 });
